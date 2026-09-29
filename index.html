@@ -9,203 +9,634 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#15161A; --surface:#1E2025; --border:#2E3038;
-    --text:#F2F0EA; --text-muted:#9A9CA6;
-    --accent:#4F9B82; --reward:#C99A4B;
-    padding-top:env(safe-area-inset-top,0px);
-    padding-bottom:env(safe-area-inset-bottom,0px);
+    --bg:#15161A; --surface:#1E2025; --surface-2:#24262C; --border:#2E3038;
+    --text:#F2F0EA; --muted:#9A9CA6; --accent:#4F9B82; --reward:#C99A4B;
   }
-  *{box-sizing:border-box;}
-  html,body{height:100%;background:var(--bg);margin:0;}
-  body{color:var(--text);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;
-       display:flex;flex-direction:column;min-height:100%;}
-  h1,h2{font-family:'Fraunces',serif;font-weight:400;margin:0;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;background:var(--bg);}
+  body{color:var(--text);font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+       padding-top:env(safe-area-inset-top,0px);}
+  .app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+  h1,h2,.serif{font-family:'Fraunces',Georgia,serif;font-weight:400;margin:0;}
 
-  header{padding:20px 20px 0;}
-  .brand{display:flex;align-items:center;gap:10px;}
-  .brand svg{width:26px;height:26px;flex:none;}
-  .brand span{font-family:'Fraunces',serif;font-size:1.3rem;}
-  .notice{background:var(--surface);border:1px solid var(--border);border-radius:8px;
-           padding:10px 14px;font-size:0.78rem;color:var(--text-muted);margin:14px 0 0;}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-size:1.25rem;}
+  .brand svg{width:24px;height:24px;}
+  .pill{font-size:.68rem;color:var(--muted);border:1px solid var(--border);border-radius:100px;padding:4px 10px;}
+  .notice{margin:14px 20px 0;padding:10px 14px;font-size:.76rem;color:var(--muted);
+          background:var(--surface);border:1px solid var(--border);border-radius:10px;line-height:1.45;}
 
-  main{flex:1;padding:20px;padding-bottom:90px;overflow-y:auto;}
-  .screen{display:none;}
-  .screen.active{display:block;}
+  main{flex:1;padding:18px 20px 104px;}
+  .screen{display:none;} .screen.active{display:block;}
+  .label{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:26px 0 12px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;}
+  .card + .card{margin-top:12px;}
 
-  .balance-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;}
-  .balance{font-family:'Fraunces',serif;font-size:2.4rem;margin-bottom:4px;}
-  .balance-label{color:var(--text-muted);font-size:0.85rem;}
+  .balance{font-family:'Fraunces',serif;font-size:2.7rem;line-height:1;margin:2px 0 6px;}
+  .sub{font-size:.82rem;color:var(--muted);line-height:1.5;}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .chipbtn{display:inline-flex;align-items:center;gap:6px;font-size:.76rem;color:var(--accent);
+           border:1px solid var(--accent);border-radius:100px;padding:5px 12px;background:none;cursor:pointer;font-family:inherit;}
+  .chipbtn .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
 
-  .section-label{font-size:0.78rem;color:var(--text-muted);margin:28px 0 12px;text-transform:uppercase;letter-spacing:0.04em;}
+  /* check-in */
+  .ck-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
+  .ck-title{font-weight:600;font-size:.98rem;}
+  .ck-streak{font-family:'Fraunces',serif;font-size:1.3rem;}
+  .pips{display:flex;gap:8px;margin-bottom:14px;}
+  .pip{flex:1;height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--border);}
+  .pip.on{background:var(--accent);border-color:var(--accent);}
+  .btn{width:100%;border:none;border-radius:10px;padding:13px;font-family:inherit;font-weight:700;font-size:.92rem;
+       background:var(--accent);color:#0E1512;cursor:pointer;}
+  .btn:disabled{background:var(--surface-2);color:var(--muted);cursor:default;border:1px solid var(--border);}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
+  .fine{font-size:.74rem;color:var(--muted);line-height:1.5;margin-top:12px;}
 
-  .row-list{border-top:1px solid var(--border);}
-  .row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);}
-  .row .k{font-size:0.92rem;}
-  .row .sub{font-size:0.76rem;color:var(--text-muted);margin-top:2px;}
-  .row .v{font-size:0.92rem;}
-  .row .v.reward{color:var(--reward);font-weight:600;}
+  /* welcome boost banner */
+  .boost{background:linear-gradient(135deg,#24352E,#1E2025);border:1px solid var(--accent);border-radius:14px;padding:18px;margin-bottom:12px;}
+  .boost .top{display:flex;justify-content:space-between;align-items:baseline;}
+  .boost .tag{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);font-weight:700;}
+  .boost .big{font-family:'Fraunces',serif;font-size:1.5rem;margin:6px 0 4px;}
+  .boostpips{display:flex;gap:5px;margin-top:10px;}
+  .bp{flex:1;height:5px;border-radius:3px;background:var(--surface-2);}
+  .bp.used{background:var(--accent);}
 
-  .task-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;}
-  .task-card .top{display:flex;justify-content:space-between;align-items:flex-start;}
-  .task-card .name{font-size:0.95rem;font-weight:600;}
-  .task-card .source{font-size:0.75rem;color:var(--text-muted);margin-top:3px;}
-  .task-card .pay{color:var(--reward);font-weight:600;font-size:0.9rem;}
-  .btn{margin-top:12px;width:100%;background:var(--accent);color:#0f1210;border:none;border-radius:6px;
-       padding:10px;font-weight:600;font-size:0.88rem;font-family:inherit;cursor:pointer;}
-  .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
+  /* progress-to-tier */
+  .prog{margin:2px 0 4px;}
+  .prog .bar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden;margin:8px 0;}
+  .prog .bar i{display:block;height:100%;background:var(--accent);}
+  .prog .steps2{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);}
 
-  .badge{display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--accent);
-         border:1px solid var(--accent);padding:4px 10px;border-radius:100px;margin-top:16px;}
-  .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  /* impact ticker */
+  .impact{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .impact div{background:var(--surface);padding:14px;text-align:center;}
+  .impact .n{font-family:'Fraunces',serif;font-size:1.35rem;}
+  .impact .l{font-size:.68rem;color:var(--muted);margin-top:2px;}
 
-  .trust-item{padding:16px 0;border-bottom:1px solid var(--border);}
-  .trust-item h3{font-size:0.95rem;font-weight:600;margin:0 0 6px;font-family:'Manrope',sans-serif;}
-  .trust-item p{font-size:0.85rem;color:var(--text-muted);margin:0;line-height:1.5;}
+  /* invite CTA */
+  .invite{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .invite .t{font-weight:600;font-size:.92rem;}
+  .invite .s{font-size:.78rem;color:var(--muted);margin-top:3px;}
 
-  nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);
-      display:flex;padding-bottom:env(safe-area-inset-bottom,0px);}
-  nav button{flex:1;background:none;border:none;color:var(--text-muted);font-family:'Manrope',sans-serif;
-             font-size:0.7rem;padding:12px 4px 10px;cursor:pointer;}
+  /* vault */
+  .stages{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 4px;}
+  .stg{font-size:.64rem;color:var(--muted);border-top:2px solid var(--border);padding-top:6px;line-height:1.3;}
+  .stg.on{border-top-color:var(--accent);color:var(--text);}
+  .vitem{padding:12px 0;border-top:1px solid var(--border);}
+  .vitem .r{display:flex;justify-content:space-between;font-size:.86rem;}
+  .vbar{height:4px;background:var(--surface-2);border-radius:2px;margin:8px 0 5px;overflow:hidden;}
+  .vbar i{display:block;height:100%;background:var(--accent);}
+  .vitem .t{font-size:.72rem;color:var(--muted);}
+
+  /* ring */
+  .ringwrap{display:flex;align-items:center;gap:18px;}
+  .ring{width:76px;height:76px;flex:none;}
+  .ring text{font-family:'Fraunces',serif;fill:var(--text);font-size:19px;}
+
+  .ledger{border-top:1px solid var(--border);}
+  .ledger .item{padding:14px 0;border-bottom:1px solid var(--border);font-size:.86rem;color:var(--muted);}
+  .src{display:inline-block;font-size:.68rem;border:1px solid var(--border);border-radius:100px;padding:2px 8px;color:var(--muted);margin-left:6px;}
+  .money{color:var(--reward);font-weight:600;}
+
+  details{border-top:1px solid var(--border);margin-top:14px;padding-top:12px;}
+  summary{cursor:pointer;font-size:.8rem;color:var(--accent);list-style:none;}
+  summary::-webkit-details-marker{display:none;}
+  .calc{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:10px;}
+  .calc b{color:var(--text);font-weight:600;}
+
+  .task-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .task-name{font-weight:600;font-size:.98rem;}
+  .task-src{font-size:.74rem;color:var(--muted);margin-top:3px;}
+  .task-pay{text-align:right;font-size:.95rem;}
+  .task-pay small{display:block;color:var(--muted);font-size:.68rem;margin-top:2px;}
+
+  .steps{display:flex;gap:6px;margin-top:8px;}
+  .step{flex:1;font-size:.66rem;color:var(--muted);border-top:2px solid var(--border);padding-top:6px;}
+
+  .kv{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);font-size:.9rem;}
+  .kv:first-child{border-top:1px solid var(--border);} .kv span:last-child{color:var(--muted);}
+  .trust h3{font-family:'Manrope',sans-serif;font-size:.95rem;font-weight:600;margin:22px 0 6px;}
+  .trust p{font-size:.86rem;color:var(--muted);line-height:1.6;margin:0;}
+  .back{background:none;border:none;color:var(--accent);font-family:inherit;font-size:.86rem;padding:0;margin-bottom:14px;cursor:pointer;}
+
+  nav{position:fixed;left:0;right:0;bottom:0;background:rgba(30,32,37,.96);backdrop-filter:blur(8px);
+      border-top:1px solid var(--border);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);}
+  .navin{display:flex;width:100%;max-width:480px;}
+  nav button{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:.66rem;padding:10px 2px 9px;cursor:pointer;}
+  nav button svg{display:block;margin:0 auto 4px;width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
   nav button.active{color:var(--accent);}
-  nav button .ic{display:block;font-size:1.1rem;margin-bottom:3px;}
 </style>
 </head>
 <body>
+<div class="app">
 
-<header>
+<div class="top">
   <div class="brand">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
       <circle cx="50" cy="50" r="42" fill="none" stroke="#4F9B82" stroke-width="6" stroke-dasharray="205 60" stroke-linecap="round" transform="rotate(-90 50 50)"/>
       <circle cx="50" cy="50" r="26" fill="none" stroke="#4F9B82" stroke-width="6" stroke-dasharray="120 45" stroke-linecap="round" transform="rotate(110 50 50)"/>
-    </svg>
-    <span>Candorra</span>
+    </svg>Candorra
   </div>
-  <div class="notice">Preview build — showing placeholder data. Not yet connected to the live backend.</div>
-</header>
+  <span class="pill">v2 preview</span>
+</div>
+<div class="notice">Preview build. No ad network or backend is connected yet, so nothing here can earn or move money. Check-in state is stored on this device only.</div>
 
 <main>
 
-  <!-- HOME -->
-  <section id="home" class="screen active">
-    <div class="balance-card">
-      <div class="balance">$0.00</div>
-      <div class="balance-label">Available balance</div>
-      <div class="badge"><span class="dot"></span>Reviewed before every payout</div>
-    </div>
-    <p class="section-label">Today</p>
-    <div class="row-list">
-      <div class="row"><span class="k">No activity yet</span><span class="v" style="color:var(--text-muted)">—</span></div>
-    </div>
-  </section>
+<!-- HOME -->
+<section id="home" class="screen active">
+  <div class="boost" id="boostCard">
+    <div class="top"><span class="tag">Welcome Boost</span><span class="sub" id="boostUsed">0 / 3 used</span></div>
+    <div class="big" id="boostHeadline"></div>
+    <div class="sub" id="boostSub"></div>
+    <div class="boostpips" id="boostPips"></div>
+  </div>
 
-  <!-- EARN -->
-  <section id="earn" class="screen">
-    <p class="section-label">Verified opportunities</p>
-    <div class="task-card">
-      <div class="top">
-        <div>
-          <div class="name">Watch a short video</div>
-          <div class="source">Sponsored by [Ad network — pending integration]</div>
-        </div>
-        <div class="pay">+$0.00</div>
+  <div class="card">
+    <div class="sub">Available balance</div>
+    <div class="balance" id="bal">0 <span style="font-size:1rem;color:var(--muted)">coin</span></div>
+    <div class="sub" style="margin-bottom:12px;">≈ $0.00 · 1,000 coin = $1</div>
+    <button class="chipbtn" data-go="trust"><span class="dot"></span>How rewards are funded</button>
+  </div>
+
+  <div class="card">
+    <div class="row" style="margin-bottom:2px;"><span style="font-weight:600;font-size:.92rem;" id="progTierNow"></span><span class="sub" id="progTierNext"></span></div>
+    <div class="prog"><div class="bar"><i id="progBar" style="width:0%"></i></div></div>
+    <div class="steps2"><span id="progLeft"></span><span id="progPerk"></span></div>
+  </div>
+
+  <div class="label" style="margin-top:22px;">Community, right now</div>
+  <div class="impact">
+    <div><div class="n" id="impUsers">—</div><div class="l" id="impUsersLabel">verified this week</div></div>
+    <div><div class="n" id="impPaid">—</div><div class="l" id="impPaidLabel">paid out this week</div></div>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <div class="invite">
+      <div><div class="t">Invite a friend</div><div class="s">You both get more from a bigger, more active community.</div></div>
+      <button class="chipbtn" data-go="friends" style="white-space:nowrap;">Invite ›</button>
+    </div>
+  </div>
+
+  <div class="card" id="vaultCard">
+    <div class="ck-head">
+      <span class="ck-title">Vault</span>
+      <span class="sub" id="vaultCount">Empty</span>
+    </div>
+    <div id="vaultList"></div>
+    <div class="stages" aria-label="How a reward moves through the Vault">
+      <div class="stg on">1 Ad shown</div><div class="stg">2 Network confirms</div><div class="stg">3 Fraud check</div><div class="stg">4 Released</div>
+    </div>
+    <details>
+      <summary>Follow one reward from start to finish</summary>
+      <div class="calc" id="vaultExample"></div>
+    </details>
+  </div>
+
+  <div class="card" id="ckCard">
+    <div class="ck-head">
+      <span class="ck-title">Daily check-in</span>
+      <span class="ck-streak"><span id="streakN">0</span> <span class="sub">day streak</span></span>
+    </div>
+    <div class="pips" id="pips"></div>
+    <button class="btn" id="ckBtn">Check in for today</button>
+    <div class="fine" id="ckFine"></div>
+  </div>
+
+  <div class="card">
+    <div class="ringwrap">
+      <svg class="ring" viewBox="0 0 76 76" aria-hidden="true">
+        <circle cx="38" cy="38" r="32" fill="none" stroke="#2E3038" stroke-width="6"/>
+        <circle id="ringArc" cx="38" cy="38" r="32" fill="none" stroke="#4F9B82" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="0 201" transform="rotate(-90 38 38)"/>
+        <text x="38" y="44" text-anchor="middle" id="ringTxt">0/10</text>
+      </svg>
+      <div>
+        <div style="font-weight:600;">Today's views</div>
+        <div class="sub" id="ringSub"></div>
       </div>
-      <button class="btn" disabled>Not yet available</button>
     </div>
-    <div class="task-card">
-      <div class="top">
-        <div>
-          <div class="name">Complete a partner offer</div>
-          <div class="source">Sponsored by [CPA network — pending integration]</div>
-        </div>
-        <div class="pay">+$0.00</div>
+  </div>
+
+  <div class="label">Recent activity</div>
+  <div class="ledger"><div class="item">No rewards yet. Your first one will show who paid for it and the exact calculation.</div></div>
+</section>
+
+<!-- EARN -->
+<section id="earn" class="screen">
+  <div class="label" style="margin-top:6px;">Verified opportunities</div>
+
+  <div class="card">
+    <div class="task-top">
+      <div>
+        <div class="task-name">Watch &amp; Earn</div>
+        <div class="task-src">Sponsored by an ad network · <span id="viewCapTxt"></span></div>
       </div>
-      <button class="btn" disabled>Not yet available</button>
+      <div class="task-pay"><span class="money" id="rwNow">—</span><small>per view, est.</small></div>
     </div>
-  </section>
+    <button class="btn" style="margin-top:16px;" disabled>Opens after ad-network approval</button>
+    <div class="fine" id="holdNote"></div>
+    <details>
+      <summary>How this number is calculated</summary>
+      <div class="calc" id="calcWatch"></div>
+    </details>
+  </div>
 
-  <!-- WALLET -->
-  <section id="wallet" class="screen">
-    <div class="balance-card">
-      <div class="balance">$0.00</div>
-      <div class="balance-label">Available balance</div>
-      <button class="btn" style="margin-top:18px;" disabled>Request withdrawal</button>
+  <div class="card" id="channelTaskCard">
+    <div class="task-top">
+      <div>
+        <div class="task-name">Join @CandorraOfficial</div>
+        <div class="task-src">One-time · funded by Candorra, not an advertiser</div>
+      </div>
+      <div class="task-pay"><span class="money">+3 coin</span><small>one time</small></div>
     </div>
-    <p class="section-label">History</p>
-    <div class="row-list">
-      <div class="row"><span class="k">No transactions yet</span><span class="v" style="color:var(--text-muted)">—</span></div>
-    </div>
-  </section>
+    <button class="btn" id="channelBtn" style="margin-top:16px;">Open channel</button>
+    <div class="fine" id="channelFine">Verified by your real membership, not by tapping a button. Staying subscribed also keeps Watch &amp; Earn active once it launches - it's how a small team keeps the community it depends on.</div>
+  </div>
 
-  <!-- PROFILE -->
-  <section id="profile" class="screen">
-    <p class="section-label">Account</p>
-    <div class="row-list">
-      <div class="row"><span class="k">Telegram account</span><span class="v" id="tg-username">—</span></div>
-      <div class="row"><span class="k">Risk tier</span><span class="v">Low</span></div>
-      <div class="row"><span class="k">Member since</span><span class="v">—</span></div>
+  <div class="card">
+    <div class="task-top">
+      <div>
+        <div class="task-name">Sponsored tasks</div>
+        <div class="task-src">Paid for by advertisers · none live yet</div>
+      </div>
+      <div class="task-pay"><span class="sub">Shown before you start</span></div>
     </div>
-    <p class="section-label">Support</p>
-    <div class="row-list">
-      <div class="row"><span class="k">Help &amp; FAQ</span><span class="v">›</span></div>
-      <div class="row"><span class="k">Report a problem</span><span class="v">›</span></div>
-    </div>
-  </section>
+    <div class="fine">Each task will show your exact reward before you begin, never after. It is a share of what the advertiser actually pays. We don't publish a number until a real campaign exists, because the payment per click isn't known yet.</div>
+  </div>
+</section>
 
-  <!-- TRUST CENTER -->
-  <section id="trust" class="screen">
-    <h2 style="font-size:1.4rem;margin-bottom:6px;">Trust Center</h2>
-    <p style="color:var(--text-muted);font-size:0.88rem;margin:0 0 10px;">The math behind every reward.</p>
-    <div class="trust-item">
-      <h3>Where rewards come from</h3>
-      <p>Every reward is funded by a real advertiser paying for a real action — a video watched, an offer completed. We never invent a balance.</p>
-    </div>
-    <div class="trust-item">
-      <h3>How the split works</h3>
-      <p>A share of what the advertiser actually pays is credited to you. The exact split is shown on every single reward, not just in a policy page.</p>
-    </div>
-    <div class="trust-item">
-      <h3>Withdrawals</h3>
-      <p>Every withdrawal is reviewed before it's sent. No fee is ever required to request or receive one.</p>
-    </div>
-    <div class="trust-item">
-      <h3>Fraud &amp; appeals</h3>
-      <p>Accounts are risk-scored on real activity patterns, never on a single signal. If you're flagged, you can appeal — every review has a path back.</p>
-    </div>
-  </section>
+<!-- WALLET -->
+<section id="wallet" class="screen">
+  <div class="card">
+    <div class="sub">Available balance</div>
+    <div class="balance">0 <span style="font-size:1rem;color:var(--muted)">coin</span></div>
+    <div class="sub">≈ $0.00 · 1,000 coin = $1</div>
+    <div class="sub" style="margin-top:14px;">0 / 5,000 coin to your first withdrawal</div>
+    <div class="pips" style="margin:8px 0 14px;"><div class="pip" style="flex:1"></div></div>
+    <button class="btn" disabled>Withdrawals are not open yet</button>
+    <div class="fine">Minimum withdrawal: 5,000 coin ($5). Payouts go to a TON wallet in USDT. No fee is charged to you to request or receive one.</div>
+  </div>
+  <div class="label">What happens after you request</div>
+  <div class="steps">
+    <div class="step">Requested</div><div class="step">In review</div><div class="step">Approved</div><div class="step">Sent</div>
+  </div>
+  <div class="fine">Every request is reviewed by a person before it is sent. A transaction reference appears only once the payment really exists on-chain.</div>
+  <div class="label">History</div>
+  <div class="ledger"><div class="item">No transactions yet.</div></div>
+</section>
+
+<!-- FRIENDS -->
+<section id="friends" class="screen">
+  <div class="card">
+    <div class="task-name">Invite a friend</div>
+    <div class="sub" style="margin-top:8px;" id="inviteLink">Open inside Telegram to see your link.</div>
+    <button class="btn ghost" style="margin-top:14px;" id="copyBtn" disabled>Copy link</button>
+  </div>
+  <div class="label">Program rules (draft, not final)</div>
+  <div class="trust"><p>Signing up earns nothing on its own. When your friend completes 5 verified views on at least 2 different days, you receive 10% of what they earn for their first 30 days. That bonus is paid by Candorra. It is not taken from your friend.</p></div>
+</section>
+
+<!-- PROFILE -->
+<section id="profile" class="screen">
+  <div class="card" style="margin-bottom:18px;">
+    <div class="ck-head" style="margin-bottom:6px;"><span class="ck-title">Standing</span><span class="serif" id="standingName" style="font-size:1.1rem;"></span></div>
+    <div class="sub" id="standingPerks"></div>
+  </div>
+  <div class="label" style="margin-top:0;">Badges</div>
+  <div class="card" id="badgeShelf" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+
+  <div class="kv" style="margin-top:22px;"><span>Telegram account</span><span id="tgName">—</span></div>
+  <div class="kv"><span>Account status</span><span>Active</span></div>
+  <button class="kv" data-go="trust" style="width:100%;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:inherit;cursor:pointer;"><span>Trust Center</span><span>›</span></button>
+  <div class="kv"><span>Help &amp; FAQ</span><span>Coming soon</span></div>
+  <div class="kv"><span>Appeal a decision</span><span>Coming soon</span></div>
+  <div class="kv"><span>Official channel</span><span>@CandorraOfficial</span></div>
+</section>
+
+<!-- TRUST (sub-screen) -->
+<section id="trust" class="screen trust">
+  <button class="back" id="backBtn">‹ Back</button>
+  <h2 style="font-size:1.6rem;">Trust Center</h2>
+  <p style="margin-top:6px;">The math behind every reward.</p>
+
+  <h3>Where rewards come from</h3>
+  <p>Advertisers pay an ad network for real views and clicks. Candorra shares part of that real payment with you. We never create a balance out of nothing.</p>
+
+  <h3>How your reward is calculated</h3>
+  <p id="trustCalc"></p>
+
+  <h3>Why rewards wait in the Vault</h3>
+  <p id="trustVault"></p>
+
+  <h3>Why the rate can change</h3>
+  <p>The launch rate is deliberately set at the conservative end of the only published figure we could verify for Telegram Mini Apps. Once real payments are measured, the rate is reset weekly to match them, and the current rate is shown here.</p>
+
+  <h3>Withdrawals</h3>
+  <p>Reviewed before sending, paid on TON in USDT, no fee to you. If a payment is delayed we say so. We never show "completed" before it is.</p>
+
+  <h3>Impact so far</h3>
+  <p id="impactText">This section will show real, aggregate numbers - total paid to verified users, number of withdrawals sent - once there is real data to show. We do not publish a statistic until it is genuinely true.</p>
+
+  <h3>Fraud checks and appeals</h3>
+  <p>Accounts are scored on several signals together, never one. We cannot identify your device, and we don't claim to. If your account is limited, you can appeal and a person reviews it.</p>
+</section>
 
 </main>
 
-<nav>
-  <button class="active" data-screen="home"><span class="ic">◐</span>Home</button>
-  <button data-screen="earn"><span class="ic">◑</span>Earn</button>
-  <button data-screen="wallet"><span class="ic">◒</span>Wallet</button>
-  <button data-screen="profile"><span class="ic">◓</span>Profile</button>
-  <button data-screen="trust"><span class="ic">◔</span>Trust</button>
-</nav>
+<nav><div class="navin">
+  <button class="active" data-screen="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</button>
+  <button data-screen="earn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>Earn</button>
+  <button data-screen="wallet"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/></svg>Wallet</button>
+  <button data-screen="friends"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><path d="M16 5a3 3 0 010 6M18 14c2 .7 3 2.6 3 6"/></svg>Friends</button>
+  <button data-screen="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</button>
+</div></nav>
+
+</div>
 
 <script>
-  // Telegram Mini App init — safe no-op if opened outside Telegram (e.g. during dev)
-  try {
-    if (window.Telegram && window.Telegram.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      tg.expand();
-      const u = tg.initDataUnsafe?.user;
-      if (u) {
-        document.getElementById('tg-username').textContent = u.username ? '@' + u.username : u.first_name;
-      }
-    }
-  } catch (e) { console.warn('Not running inside Telegram, using placeholder UI.', e); }
+/* ---------------------------------------------------------------
+   REWARD CONFIG: the ONLY place reward numbers come from.
+   assumedEcpmUsd: 1.00 = the HIGH end of AdsGram's published publisher CPM
+     (~$0.5-$1 per 1,000 impressions; docs.adsgram.ai, page dated Nov 2025;
+     current rate UNVERIFIED). Replace with the MEASURED value after a pilot
+     (Earned / Impressions x 1000). Never set above what the dashboard shows.
+   eligibleShare: 1 - fraud 8% - payout 2% - infra 10% (placeholders, not measured).
+   tiers: share of ELIGIBLE revenue paid to the user. Streak moves share
+     between users; the pool never exceeds 45%.
+---------------------------------------------------------------- */
+const CONFIG = {
+  assumedEcpmUsd: 1.00,
+  eligibleShare: 0.80,
+  // Perks are REAL consequences of standing, not just a bigger reward share:
+  // higher daily view cap (more chances to earn) and a shorter Vault hold
+  // (once the backend enforces per-tier hold - see README). The reward-pool
+  // share still tops out at 45%; standing does not raise it further.
+  tiers: [
+    {minDays:0, share:0.40, cap:10, holdHours:24, name:'Member'},
+    {minDays:3, share:0.43, cap:12, holdHours:18, name:'Regular'},
+    {minDays:7, share:0.45, cap:15, holdHours:12, name:'Trusted'}
+  ],
+  dailyViewCap: 10,
+  coinPerUsd: 1000,       // owner decision: 1,000 coin = $1 (display alias; the ledger is in USD)
+  minWithdrawUsd: 5,     // owner decision: 5,000 coin = $5
+  holdHours: 24,         // ASSUMPTION: Vault hold. Must match the backend HOLD_HOURS and AdsGram's real adjustment window (ask support)
+  // Welcome Boost: must match backend WELCOME_BOOST_SHARE / WELCOME_BOOST_VIEWS exactly, or the
+  // number shown here will not match what the backend actually pays. This is display logic only -
+  // the real decision happens server-side in webhooks.js.
+  welcomeBoostShare: 0.70,
+  welcomeBoostViews: 3
+};
 
-  // Simple tab navigation
-  document.querySelectorAll('nav button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.screen).classList.add('active');
+const $ = id => document.getElementById(id);
+const tg = window.Telegram && window.Telegram.WebApp;
+try { if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#15161A'); tg.setBackgroundColor('#15161A'); } } catch(e){}
+
+function fmtUsd(n){
+  if (n === 0) return '$0.00';
+  if (n >= 0.01) return '$' + n.toFixed(2);
+  let s = n.toFixed(5).replace(/0+$/,''); const dec = (s.split('.')[1]||'').length;
+  if (dec < 4) s = n.toFixed(4);
+  return '$' + s;
+}
+function tierFor(days){ let t = CONFIG.tiers[0]; for (const x of CONFIG.tiers) if (days >= x.minDays) t = x; return t; }
+function fmtCoin(usd){ const c = usd*CONFIG.coinPerUsd; if (c === 0) return '0'; if (c >= 100) return Math.round(c).toLocaleString('en-US'); if (c >= 10) return c.toFixed(1); return c.toFixed(2); }
+function perView(share){ return CONFIG.assumedEcpmUsd/1000 * CONFIG.eligibleShare * share; }
+
+/* ---- check-in state (device-local in this preview) ---- */
+const KEY = 'candorra_preview_v2';
+let st = { last:null, streak:0, freezeUsedOn:null };
+try { st = Object.assign(st, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch(e){}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
+const utcDay = () => new Date().toISOString().slice(0,10);
+const dayDiff = (a,b) => Math.round((Date.parse(b+'T00:00:00Z') - Date.parse(a+'T00:00:00Z'))/86400000);
+const freezeOk = t => !st.freezeUsedOn || dayDiff(st.freezeUsedOn, t) >= 7;
+
+function checkIn(){
+  const t = utcDay(); if (st.last === t) return;
+  if (!st.last) st.streak = 1;
+  else {
+    const d = dayDiff(st.last, t);
+    if (d === 1) st.streak += 1;
+    else if (d === 2 && freezeOk(t)) { st.streak += 1; st.freezeUsedOn = t; }
+    else st.streak = 1;
+  }
+  st.last = t; save(); render();
+  try { tg && tg.HapticFeedback.notificationOccurred('success'); } catch(e){}
+}
+
+function render(){
+  const t = utcDay(), done = st.last === t;
+  const liveStreak = (st.last && dayDiff(st.last, t) <= 2) ? st.streak : 0;
+  const shownStreak = done ? st.streak : liveStreak;
+  const effective = done ? st.streak : 0;          // bonus applies only on days you checked in
+  const tier = tierFor(effective), nextTier = CONFIG.tiers.find(x => x.minDays > effective);
+
+  $('streakN').textContent = shownStreak;
+  const pips = $('pips'); pips.innerHTML = '';
+  for (let i = 0; i < 7; i++) { const p = document.createElement('div'); p.className = 'pip' + (i < Math.min(shownStreak,7) ? ' on' : ''); pips.appendChild(p); }
+  $('ckBtn').disabled = done;
+  $('ckBtn').textContent = done ? 'Checked in today' : 'Check in for today';
+  $('ckFine').textContent = 'Checking in is free and creates no reward by itself. It raises your share of each ad payment you later earn: ' +
+    (tier.share*100).toFixed(0) + '% of eligible revenue today' +
+    (nextTier ? ', ' + (nextTier.share*100).toFixed(0) + '% from day ' + nextTier.minDays + '.' : ' (the maximum).') +
+    ' One missed day per week is covered automatically.';
+
+  const cap = CONFIG.dailyViewCap, views = 0;
+  $('ringArc').setAttribute('stroke-dasharray', (201*views/cap).toFixed(1) + ' 201');
+  $('ringTxt').textContent = views + '/' + cap;
+  const day7 = perView(CONFIG.tiers[CONFIG.tiers.length-1].share);
+  $('ringSub').textContent = 'Up to ' + cap + ' a day. At today\'s rate a full day is about ' + fmtCoin(perView(tier.share)*cap) + ' coin (' + fmtUsd(perView(tier.share)*cap) + ').';
+
+  $('viewCapTxt').textContent = 'up to ' + cap + ' a day';
+  $('rwNow').textContent = '≈' + fmtCoin(perView(tier.share)) + ' coin';
+  const g = CONFIG.assumedEcpmUsd/1000;
+  $('calcWatch').innerHTML =
+    'Advertiser pays about <b>' + fmtUsd(g) + '</b> per view (launch estimate, ' + '$' + CONFIG.assumedEcpmUsd.toFixed(2) + ' per 1,000 views)<br>' +
+    '× <b>' + (CONFIG.eligibleShare*100).toFixed(0) + '%</b> after fraud, payout and running costs<br>' +
+    '× <b>' + (tier.share*100).toFixed(0) + '%</b> your share (' + (effective ? 'streak day ' + effective : 'no check-in today') + ')<br>' +
+    '= <b>' + fmtCoin(perView(tier.share)) + ' coin</b> (' + fmtUsd(perView(tier.share)) + ') per view. With a 7-day streak: <b>' + fmtCoin(day7) + ' coin</b> (' + fmtUsd(day7) + ').';
+  $('trustCalc').innerHTML = 'Your share = what the advertiser pays × ' + (CONFIG.eligibleShare*100).toFixed(0) +
+    '% (after fraud, payout and running costs) × ' + CONFIG.tiers.map(x => (x.share*100).toFixed(0) + '%').join(' / ') +
+    ' depending on your check-in streak. Current launch estimate: about ' + fmtUsd(perView(CONFIG.tiers[0].share)) + ' to ' +
+    fmtUsd(perView(CONFIG.tiers[CONFIG.tiers.length-1].share)) + ' per view (1,000 coin = $1). These percentages are placeholders until measured.';
+}
+$('ckBtn').addEventListener('click', checkIn);
+
+/* ---- navigation ---- */
+let lastTab = 'home';
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.screen === id));
+  if (id !== 'trust') lastTab = id;
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => show(b.dataset.screen)));
+document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
+$('backBtn').addEventListener('click', () => show(lastTab));
+
+/* ---- Telegram identity (display only; real auth happens server-side via initData) ---- */
+try {
+  const u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if (u) {
+    $('tgName').textContent = u.username ? '@' + u.username : u.first_name;
+    const link = 'https://t.me/CandorraBot/app?startapp=ref_' + u.id;
+    $('inviteLink').textContent = link; $('copyBtn').disabled = false;
+    $('copyBtn').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(link); $('copyBtn').textContent = 'Copied'; } catch(e){ tg.showAlert && tg.showAlert(link); }
     });
+  }
+} catch(e){}
+
+/* ---- Vault ----
+   `vault` stays empty in this preview. When the backend is live it is filled from GET /api/vault:
+   [{ amountUsd, createdAt, releaseAt }]. Nothing here is invented data. */
+let vault = [];
+function renderVault(){
+  const list = $('vaultList'); list.innerHTML = '';
+  const now = Date.now();
+  let total = 0, soonest = null;
+  if (!vault.length) {
+    const d = document.createElement('div'); d.className = 'sub'; d.style.marginBottom = '14px';
+    d.textContent = 'Nothing waiting. After you watch an ad, the reward appears here while it is checked, then moves to your balance.';
+    list.appendChild(d);
+    $('vaultCount').textContent = 'Empty';
+  } else {
+    vault.forEach(v => {
+      total += v.amountUsd;
+      const start = Date.parse(v.createdAt), end = Date.parse(v.releaseAt);
+      const pct = Math.max(0, Math.min(100, (now - start) / (end - start) * 100));
+      const left = Math.max(0, end - now);
+      if (soonest === null || left < soonest) soonest = left;
+      const h = Math.floor(left/3600000), m = Math.floor((left % 3600000)/60000);
+      const row = document.createElement('div'); row.className = 'vitem';
+      const r = document.createElement('div'); r.className = 'r';
+      const a = document.createElement('span'); a.textContent = 'Watch & Earn';
+      const b = document.createElement('span'); b.className = 'money'; b.textContent = '+' + fmtCoin(v.amountUsd) + ' coin';
+      r.appendChild(a); r.appendChild(b);
+      const bar = document.createElement('div'); bar.className = 'vbar';
+      const fill = document.createElement('i'); fill.style.width = pct.toFixed(0) + '%'; bar.appendChild(fill);
+      const t = document.createElement('div'); t.className = 't';
+      t.textContent = left > 0 ? 'Fraud check running · releases in ' + h + 'h ' + m + 'm' : 'Releasing now';
+      row.appendChild(r); row.appendChild(bar); row.appendChild(t); list.appendChild(row);
+    });
+    $('vaultCount').textContent = fmtCoin(total) + ' coin waiting';
+  }
+  const g = CONFIG.assumedEcpmUsd/1000, first = CONFIG.tiers[0].share, mine = perView(first);
+  $('vaultExample').innerHTML =
+    'This is an <b>illustration</b>, not a real reward.<br>' +
+    '1. You watch one ad. The advertiser pays about <b>' + fmtUsd(g) + '</b>.<br>' +
+    '2. The ad network confirms the view to our server.<br>' +
+    '3. The reward (<b>' + fmtCoin(mine) + ' coin</b> at a ' + (first*100).toFixed(0) + '% share) waits for about <b>' + CONFIG.holdHours + ' hours</b> while invalid-traffic checks finish.<br>' +
+    '4. It is released to your balance. If a view is found invalid, it is removed and you can see why.';
+  $('holdNote').textContent = 'Each reward waits in your Vault for about ' + CONFIG.holdHours + ' hours (launch setting) while the ad network checks the view, then moves to your balance.';
+  $('trustVault').textContent = 'Ad networks check every view for fake or automated traffic, and can adjust what they pay afterwards. To avoid paying out money we might have to take back, each reward waits in your Vault for about ' + CONFIG.holdHours + ' hours (a launch setting, not a measured figure) and is then released to your balance. Nothing is hidden: every waiting reward shows exactly when it will be released.';
+}
+setInterval(() => { if (vault.length) renderVault(); }, 60000);
+
+/* ---- Channel-subscribe task ----
+   Preview build: no backend yet, so this opens the channel and shows the real
+   flow's wording without actually crediting anything. Once the backend is live,
+   this button calls POST /api/tasks/channel-subscribe/claim, which verifies
+   real membership via Telegram's own API before crediting anything - never
+   on a client-side claim alone. */
+$('channelBtn').addEventListener('click', () => {
+  const link = 'https://t.me/CandorraOfficial';
+  try { tg && tg.openTelegramLink ? tg.openTelegramLink(link) : window.open(link, '_blank'); }
+  catch(e) { window.open(link, '_blank'); }
+  $('channelFine').textContent = 'Preview build: opening the channel does not credit anything yet. Once live, this checks your real membership on our server before crediting the one-time bonus.';
+});
+
+/* ---- Badges: cosmetic only, sourced from GET /api/achievements once the backend is live.
+   Definitions kept here just for labels/icons; awarding logic lives server-side only. */
+const BADGE_DEFS = {
+  first_release:     { label: 'First reward released', icon: '◐' },
+  week_streak:       { label: '7-day streak',           icon: '◑' },
+  first_withdrawal:  { label: 'First withdrawal sent',  icon: '◒' },
+  community_member:  { label: 'Joined the channel',     icon: '◓' },
+};
+function renderBadges(earnedKeys){
+  const shelf = $('badgeShelf'); shelf.innerHTML = '';
+  Object.entries(BADGE_DEFS).forEach(([key, def]) => {
+    const earned = earnedKeys.includes(key);
+    const b = document.createElement('div');
+    b.style.cssText = 'text-align:center;width:64px;opacity:' + (earned ? '1' : '.35') + ';';
+    b.innerHTML = '<div style="font-size:1.4rem;">' + def.icon + '</div><div style="font-size:.62rem;color:var(--muted);margin-top:4px;line-height:1.3;">' + def.label + '</div>';
+    shelf.appendChild(b);
   });
+}
+function renderStanding(){
+  const t = utcDay(), done = st.last === t;
+  const effective = done ? st.streak : 0;
+  const tier = tierFor(effective);
+  $('standingName').textContent = tier.name;
+  $('standingPerks').textContent = 'Up to ' + tier.cap + ' views a day · Vault releases in about ' + tier.holdHours + 'h · ' + (tier.share*100).toFixed(0) + '% share of eligible revenue.';
+}
+renderBadges([]); // preview: no backend yet, so nothing is actually earned
+renderStanding();
+
+/* ---- Welcome Boost (Home) ----
+   Preview: no backend, so `boostUsedCount` is always 0 here - this is the true
+   state for a user who has never watched an ad yet, not a placeholder trick.
+   Once /api/balance or a dedicated endpoint reports real prior-view count,
+   swap this constant for that value. */
+let boostUsedCount = 0;
+function renderBoost(){
+  const remaining = Math.max(0, CONFIG.welcomeBoostViews - boostUsedCount);
+  const card = $('boostCard');
+  if (remaining === 0) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const normalCoin = fmtCoin(perView(CONFIG.tiers[0].share));
+  const boostCoin = fmtCoin(perView(CONFIG.tiers[0].share) / CONFIG.tiers[0].share * CONFIG.welcomeBoostShare);
+  $('boostUsed').textContent = boostUsedCount + ' / ' + CONFIG.welcomeBoostViews + ' used';
+  $('boostHeadline').textContent = 'Your first ' + remaining + ' ad' + (remaining>1?'s pay':' pays') + ' ' + boostCoin + ' coin';
+  $('boostSub').textContent = 'Instead of the usual ' + normalCoin + ' coin - a one-time welcome rate on real, verified views. No purchase, no deposit.';
+  const pips = $('boostPips'); pips.innerHTML = '';
+  for (let i = 0; i < CONFIG.welcomeBoostViews; i++) {
+    const p = document.createElement('div'); p.className = 'bp' + (i < boostUsedCount ? ' used' : '');
+    pips.appendChild(p);
+  }
+}
+
+/* ---- Progress to next Standing tier (Home) ---- */
+function renderTierProgress(){
+  const t = utcDay(), done = st.last === t;
+  const effective = done ? st.streak : 0;
+  const tier = tierFor(effective);
+  const idx = CONFIG.tiers.findIndex(x => x === tier);
+  const next = CONFIG.tiers[idx + 1];
+  $('progTierNow').textContent = tier.name;
+  if (!next) {
+    $('progTierNext').textContent = 'Highest standing';
+    $('progBar').style.width = '100%';
+    $('progLeft').textContent = 'You have the best terms we offer.';
+    $('progPerk').textContent = '';
+  } else {
+    $('progTierNext').textContent = 'Next: ' + next.name;
+    const span = next.minDays - CONFIG.tiers[idx].minDays;
+    const have = effective - CONFIG.tiers[idx].minDays;
+    $('progBar').style.width = Math.max(4, Math.min(100, have/span*100)).toFixed(0) + '%';
+    const daysLeft = next.minDays - effective;
+    $('progLeft').textContent = daysLeft + ' check-in' + (daysLeft>1?'s':'') + ' away';
+    $('progPerk').textContent = next.cap + ' views/day · ' + next.holdHours + 'h Vault';
+  }
+}
+
+/* ---- Impact ticker (Home) ----
+   Preview: genuinely no data exists yet, so this says so - it does not show 0
+   dressed up as a real number, and it does not invent one either. Once the
+   backend has real weekly aggregates, wire this to that query. */
+function renderImpact(){
+  // Preview: genuinely no data yet. Says so plainly rather than showing 0 or a made-up number.
+  $('impUsers').textContent = '—';
+  $('impPaid').textContent = '—';
+  $('impUsersLabel').textContent = 'gathering data';
+  $('impPaidLabel').textContent = 'gathering data';
+}
+
+renderBoost(); renderTierProgress(); renderImpact();
+
+render(); renderVault();
 </script>
 </body>
 </html>
