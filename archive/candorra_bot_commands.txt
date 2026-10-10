@@ -1,0 +1,70 @@
+// Candorra — @CandorraBot onboarding commands (TeleBotHost / TBL)
+//
+// IMPORTANT: I have not been able to verify TBL's exact current syntax against
+// live TeleBotHost documentation in this session (no network access from my
+// side). This is written using TBL's documented general shape — standard
+// JavaScript with the Bot/Api/user/chat globals, no .then()/.catch() chaining
+// in command Logic. Check this against TeleBotHost's own in-editor
+// autocomplete/docs before relying on it, and adjust syntax as needed —
+// treat this as a strong first draft, not verified-working code.
+//
+// This bot layer does NOT touch the ledger or balances directly — it only
+// sends messages and launches the Mini App. All financial logic lives in
+// the external backend (see /backend).
+
+// --- /start command ---
+// Command: start
+// Logic:
+
+Bot.sendMessage(chat.id,
+  "Welcome to Candorra.\n\n" +
+  "We're the earning platform that shows its math — every reward you see " +
+  "has a real source, shown plainly, before you ever tap anything.\n\n" +
+  "No purchase is ever required to earn. No fee is ever required to withdraw.",
+  {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "Open Candorra", web_app: { url: "PASTE_YOUR_DEPLOYED_MINIAPP_URL_HERE" } }],
+        [{ text: "How rewards work (Trust Center)", callback_data: "trust_center" }]
+      ]
+    }
+  }
+);
+
+// --- /help command ---
+// Command: help
+// Logic:
+
+Bot.sendMessage(chat.id,
+  "Candorra — quick help\n\n" +
+  "• /start — open the app\n" +
+  "• Withdrawals are reviewed before sending, never instant, never require a fee\n" +
+  "• Official channel: @CandorraOfficial\n" +
+  "• Having an issue? Reply here and describe what happened."
+);
+
+// --- callback_query handler for "trust_center" button ---
+// Event: callback_query
+// Logic:
+
+if (params.data === "trust_center") {
+  Bot.sendMessage(chat.id,
+    "How Candorra works:\n\n" +
+    "1. Advertisers pay for real actions (a video watched, an offer completed)\n" +
+    "2. A transparent share of that real payment goes to you\n" +
+    "3. Withdrawals are reviewed, never instant, never fee-gated\n\n" +
+    "Full detail is inside the app under Trust."
+  );
+}
+
+// --- Admin broadcast stub (manual trigger only, not automatic) ---
+// Command: broadcast   (should be gated to ADMIN_TELEGRAM_ID = 6534482918 only)
+// Logic:
+
+if (String(user.id) === "6534482918") {
+  // Broadcast logic goes here once there's a subscriber list to send to.
+  // Deliberately not implemented yet — no user base exists to broadcast to.
+  Bot.sendMessage(chat.id, "Broadcast command received — not yet wired to a subscriber list.");
+} else {
+  Bot.sendMessage(chat.id, "This command is restricted.");
+}

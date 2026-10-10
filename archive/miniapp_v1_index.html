@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Candorra</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15161A; --surface:#1E2025; --border:#2E3038;
+    --text:#F2F0EA; --text-muted:#9A9CA6;
+    --accent:#4F9B82; --reward:#C99A4B;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;background:var(--bg);margin:0;}
+  body{color:var(--text);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;
+       display:flex;flex-direction:column;min-height:100%;}
+  h1,h2{font-family:'Fraunces',serif;font-weight:400;margin:0;}
+
+  header{padding:20px 20px 0;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand svg{width:26px;height:26px;flex:none;}
+  .brand span{font-family:'Fraunces',serif;font-size:1.3rem;}
+  .notice{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+           padding:10px 14px;font-size:0.78rem;color:var(--text-muted);margin:14px 0 0;}
+
+  main{flex:1;padding:20px;padding-bottom:90px;overflow-y:auto;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  .balance-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;}
+  .balance{font-family:'Fraunces',serif;font-size:2.4rem;margin-bottom:4px;}
+  .balance-label{color:var(--text-muted);font-size:0.85rem;}
+
+  .section-label{font-size:0.78rem;color:var(--text-muted);margin:28px 0 12px;text-transform:uppercase;letter-spacing:0.04em;}
+
+  .row-list{border-top:1px solid var(--border);}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);}
+  .row .k{font-size:0.92rem;}
+  .row .sub{font-size:0.76rem;color:var(--text-muted);margin-top:2px;}
+  .row .v{font-size:0.92rem;}
+  .row .v.reward{color:var(--reward);font-weight:600;}
+
+  .task-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;}
+  .task-card .top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .task-card .name{font-size:0.95rem;font-weight:600;}
+  .task-card .source{font-size:0.75rem;color:var(--text-muted);margin-top:3px;}
+  .task-card .pay{color:var(--reward);font-weight:600;font-size:0.9rem;}
+  .btn{margin-top:12px;width:100%;background:var(--accent);color:#0f1210;border:none;border-radius:6px;
+       padding:10px;font-weight:600;font-size:0.88rem;font-family:inherit;cursor:pointer;}
+  .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--accent);
+         border:1px solid var(--accent);padding:4px 10px;border-radius:100px;margin-top:16px;}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+
+  .trust-item{padding:16px 0;border-bottom:1px solid var(--border);}
+  .trust-item h3{font-size:0.95rem;font-weight:600;margin:0 0 6px;font-family:'Manrope',sans-serif;}
+  .trust-item p{font-size:0.85rem;color:var(--text-muted);margin:0;line-height:1.5;}
+
+  nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);
+      display:flex;padding-bottom:env(safe-area-inset-bottom,0px);}
+  nav button{flex:1;background:none;border:none;color:var(--text-muted);font-family:'Manrope',sans-serif;
+             font-size:0.7rem;padding:12px 4px 10px;cursor:pointer;}
+  nav button.active{color:var(--accent);}
+  nav button .ic{display:block;font-size:1.1rem;margin-bottom:3px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#4F9B82" stroke-width="6" stroke-dasharray="205 60" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+      <circle cx="50" cy="50" r="26" fill="none" stroke="#4F9B82" stroke-width="6" stroke-dasharray="120 45" stroke-linecap="round" transform="rotate(110 50 50)"/>
+    </svg>
+    <span>Candorra</span>
+  </div>
+  <div class="notice">Preview build — showing placeholder data. Not yet connected to the live backend.</div>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section id="home" class="screen active">
+    <div class="balance-card">
+      <div class="balance">$0.00</div>
+      <div class="balance-label">Available balance</div>
+      <div class="badge"><span class="dot"></span>Reviewed before every payout</div>
+    </div>
+    <p class="section-label">Today</p>
+    <div class="row-list">
+      <div class="row"><span class="k">No activity yet</span><span class="v" style="color:var(--text-muted)">—</span></div>
+    </div>
+  </section>
+
+  <!-- EARN -->
+  <section id="earn" class="screen">
+    <p class="section-label">Verified opportunities</p>
+    <div class="task-card">
+      <div class="top">
+        <div>
+          <div class="name">Watch a short video</div>
+          <div class="source">Sponsored by [Ad network — pending integration]</div>
+        </div>
+        <div class="pay">+$0.00</div>
+      </div>
+      <button class="btn" disabled>Not yet available</button>
+    </div>
+    <div class="task-card">
+      <div class="top">
+        <div>
+          <div class="name">Complete a partner offer</div>
+          <div class="source">Sponsored by [CPA network — pending integration]</div>
+        </div>
+        <div class="pay">+$0.00</div>
+      </div>
+      <button class="btn" disabled>Not yet available</button>
+    </div>
+  </section>
+
+  <!-- WALLET -->
+  <section id="wallet" class="screen">
+    <div class="balance-card">
+      <div class="balance">$0.00</div>
+      <div class="balance-label">Available balance</div>
+      <button class="btn" style="margin-top:18px;" disabled>Request withdrawal</button>
+    </div>
+    <p class="section-label">History</p>
+    <div class="row-list">
+      <div class="row"><span class="k">No transactions yet</span><span class="v" style="color:var(--text-muted)">—</span></div>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile" class="screen">
+    <p class="section-label">Account</p>
+    <div class="row-list">
+      <div class="row"><span class="k">Telegram account</span><span class="v" id="tg-username">—</span></div>
+      <div class="row"><span class="k">Risk tier</span><span class="v">Low</span></div>
+      <div class="row"><span class="k">Member since</span><span class="v">—</span></div>
+    </div>
+    <p class="section-label">Support</p>
+    <div class="row-list">
+      <div class="row"><span class="k">Help &amp; FAQ</span><span class="v">›</span></div>
+      <div class="row"><span class="k">Report a problem</span><span class="v">›</span></div>
+    </div>
+  </section>
+
+  <!-- TRUST CENTER -->
+  <section id="trust" class="screen">
+    <h2 style="font-size:1.4rem;margin-bottom:6px;">Trust Center</h2>
+    <p style="color:var(--text-muted);font-size:0.88rem;margin:0 0 10px;">The math behind every reward.</p>
+    <div class="trust-item">
+      <h3>Where rewards come from</h3>
+      <p>Every reward is funded by a real advertiser paying for a real action — a video watched, an offer completed. We never invent a balance.</p>
+    </div>
+    <div class="trust-item">
+      <h3>How the split works</h3>
+      <p>A share of what the advertiser actually pays is credited to you. The exact split is shown on every single reward, not just in a policy page.</p>
+    </div>
+    <div class="trust-item">
+      <h3>Withdrawals</h3>
+      <p>Every withdrawal is reviewed before it's sent. No fee is ever required to request or receive one.</p>
+    </div>
+    <div class="trust-item">
+      <h3>Fraud &amp; appeals</h3>
+      <p>Accounts are risk-scored on real activity patterns, never on a single signal. If you're flagged, you can appeal — every review has a path back.</p>
+    </div>
+  </section>
+
+</main>
+
+<nav>
+  <button class="active" data-screen="home"><span class="ic">◐</span>Home</button>
+  <button data-screen="earn"><span class="ic">◑</span>Earn</button>
+  <button data-screen="wallet"><span class="ic">◒</span>Wallet</button>
+  <button data-screen="profile"><span class="ic">◓</span>Profile</button>
+  <button data-screen="trust"><span class="ic">◔</span>Trust</button>
+</nav>
+
+<script>
+  // Telegram Mini App init — safe no-op if opened outside Telegram (e.g. during dev)
+  try {
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+      const u = tg.initDataUnsafe?.user;
+      if (u) {
+        document.getElementById('tg-username').textContent = u.username ? '@' + u.username : u.first_name;
+      }
+    }
+  } catch (e) { console.warn('Not running inside Telegram, using placeholder UI.', e); }
+
+  // Simple tab navigation
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.screen).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
